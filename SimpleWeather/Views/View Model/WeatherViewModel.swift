@@ -13,7 +13,7 @@ import CoreLocation
     var weatherManager = WeatherManager()
     
     var userWeather: ResponseBody?
-    var deafultCitiesArray: [ResponseBody] = []
+    var defaultCitiesArray: [ResponseBody] = []
     var defaultCoordArray: [CLLocationCoordinate2D] {
         [
             CLLocationCoordinate2D(latitude: 55.7558, longitude: 37.6172),
@@ -47,13 +47,13 @@ import CoreLocation
     
     func loadDefaultArray() async throws {
         
-        self.defaultCoordArray.forEach { location in
-            Task { 
+        self.defaultCoordArray.enumerated().forEach { index, location in
+            Task {
                 let result = try await weatherManager.loadWeatherFor(latitude: location.latitude, longitude: location.longitude)
                 
                 switch result {
                 case .success(let success):
-                    self.deafultCitiesArray.append(success)
+                    self.defaultCitiesArray[index] = success
                 case .failure(let failure):
                     self.error = failure.localizedDescription
                 }
@@ -61,13 +61,8 @@ import CoreLocation
         }
     }
      
-    init(locationManager: LocationDataManager = LocationDataManager(), weatherManager: WeatherManager = WeatherManager(), userWeather: ResponseBody? = nil, deafultCitiesArray: [ResponseBody] = [], error: String? = nil) {
-        self.locationManager = locationManager
-        self.weatherManager = weatherManager
-        self.userWeather = userWeather
-        self.deafultCitiesArray = deafultCitiesArray
-        self.error = error
-        self.deafultCitiesArray = deafultCitiesArray
+    init() {
+        defaultCitiesArray = Array(repeating: previewWeather, count: defaultCoordArray.count)
         locationManager.checkIfLocationIsEnabled()
         if locationManager.location != nil {
             Task {

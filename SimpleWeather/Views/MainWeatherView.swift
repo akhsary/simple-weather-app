@@ -25,7 +25,7 @@ struct MainWeatherView: View {
                             
                             Button {
                                 if counter {
-                                    weatherManager.deafultCitiesArray.insert(weather, at: 0)
+                                    weatherManager.defaultCitiesArray.insert(weather, at: 0)
                                     counter = false
                                 }
                                 isPresented.toggle()

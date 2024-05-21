@@ -8,7 +8,7 @@ import SwiftUI
 
 extension WeatherRow {
     internal func fetchSearchResults(for query: String) {
-        searchResults = weatherManager.deafultCitiesArray.filter { city in
+        searchResults = weatherManager.defaultCitiesArray.filter { city in
             city.name
                 .capitalized(with: nil)
                 .contains(searchQuery)

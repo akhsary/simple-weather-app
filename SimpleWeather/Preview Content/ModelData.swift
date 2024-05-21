@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
  
 var previewWeatherViewModel = WeatherViewModel()
-var previewWeather: ResponseBody? = load("weatherData.json")
+var previewWeather: ResponseBody = load("weatherData.json")
 
 
 func load<T: Decodable>(_ filename: String) -> T {

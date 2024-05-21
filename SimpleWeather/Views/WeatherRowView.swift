@@ -32,7 +32,7 @@ struct WeatherRow: View {
                 
                 List {
                     if searchResults.isEmpty {
-                        ForEach(weatherManager.deafultCitiesArray){ weather in
+                        ForEach(weatherManager.defaultCitiesArray){ weather in
                             arrayView(weather: weather)
                         }
                     } else {
