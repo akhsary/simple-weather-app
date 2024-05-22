@@ -18,16 +18,6 @@ struct WeatherRow: View {
     @Environment(WeatherViewModel.self) var weatherManager
     
     var body: some View {
-        VStack {
-            HStack {
-                Spacer()
-                
-                Button("Dismiss"){
-                    self.isPresented = false
-                }
-                .padding()
-                .foregroundStyle(.black)
-            }
             NavigationStack {
                 
                 List {
@@ -41,17 +31,27 @@ struct WeatherRow: View {
                         }
                     }
                 }
+                .navigationTitle("Choose your City")
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Dismiss"){
+                            self.isPresented = false
+                        }
+                        .padding()
+                        .foregroundStyle(.black)
+                    }
+                }
             }
             .searchable(
                 text: $searchQuery,
                 placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search.."
+                prompt: "Search..."
             )
             .textInputAutocapitalization(.words)
             .onChange(of: searchQuery) {
                 self.fetchSearchResults(for: searchQuery)
             }
-        }
+            
     }
 }
 

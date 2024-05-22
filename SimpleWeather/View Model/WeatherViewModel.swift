@@ -13,7 +13,7 @@ import CoreLocation
     var weatherManager = WeatherManager()
     
     var userWeather: ResponseBody?
-    var defaultCitiesArray: [ResponseBody] = []
+    var defaultCitiesArray = [ResponseBody]()
     var defaultCoordArray: [CLLocationCoordinate2D] {
         [
             CLLocationCoordinate2D(latitude: 55.7558, longitude: 37.6172),
@@ -48,14 +48,16 @@ import CoreLocation
     func loadDefaultArray() async throws {
         
         self.defaultCoordArray.enumerated().forEach { index, location in
-            Task {
-                let result = try await weatherManager.loadWeatherFor(latitude: location.latitude, longitude: location.longitude)
-                
-                switch result {
-                case .success(let success):
-                    self.defaultCitiesArray[index] = success
-                case .failure(let failure):
-                    self.error = failure.localizedDescription
+            DispatchQueue.main.asyncAndWait {
+                Task {
+                    let result = try await weatherManager.loadWeatherFor(latitude: location.latitude, longitude: location.longitude)
+                    
+                    switch result {
+                    case .success(let success):
+                        self.defaultCitiesArray[index] = success
+                    case .failure(let failure):
+                        self.error = failure.localizedDescription
+                    }
                 }
             }
         }

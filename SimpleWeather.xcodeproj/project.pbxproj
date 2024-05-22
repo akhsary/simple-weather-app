@@ -82,6 +82,7 @@
 				273787202BEE2FCA00D38496 /* SimpleWeatherApp.swift */,
 				2737872F2BEE30A900D38496 /* Managers */,
 				2737872E2BEE301800D38496 /* Views */,
+				5BF2F6002BF74C97002BAC28 /* View Model */,
 				2737873B2BEE694A00D38496 /* Models */,
 				273787242BEE2FCC00D38496 /* Assets.xcassets */,
 				273787262BEE2FCC00D38496 /* Preview Content */,
@@ -102,7 +103,6 @@
 		2737872E2BEE301800D38496 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				5BF2F6002BF74C97002BAC28 /* View Model */,
 				273787362BEE4F6F00D38496 /* Helpers */,
 				273787222BEE2FCA00D38496 /* ContentView.swift */,
 				273787422BEE773D00D38496 /* MainWeatherView.swift */,

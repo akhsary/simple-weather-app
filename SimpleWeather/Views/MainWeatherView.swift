@@ -45,7 +45,6 @@ struct MainWeatherView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    
                     VStack {
                         HStack {
                             Text(weather.main.feelsLike.roundDouble() + "°")
@@ -57,13 +56,26 @@ struct MainWeatherView: View {
                             Spacer()
                             
                             VStack(spacing: 20) {
-                                Image(systemName: "cloud")
-                                    .font(.system(size: 40))
+                                if weather.weather[0].main == "Clouds"
+                                {
+                                    Image(systemName: "cloud.sun")
+                                        .font(.system(size: 40))
+                                } else if weather.weather[0].main == "Clear" {
+                                    Image(systemName: "sun.max")
+                                        .font(.system(size: 40))
+                                } else if weather.weather[0].main == "Rain" {
+                                    Image(systemName: "cloud.rain")
+                                        .font(.system(size: 40))
+                                } else {
+                                    Image(systemName: "cloud")
+                                        .font(.system(size: 40))
+                                }
                                 
-                                Text("\(weather.weather[0].main)")
+                                Text(weather.weather[0].main)
                             }
-                            .frame(width: 80, alignment: .trailing)
+                            .frame(width: 80, alignment: .leading)
                         }
+                        .padding(.leading, -10)
                         
                         Spacer()
                             .frame(height:  20)
