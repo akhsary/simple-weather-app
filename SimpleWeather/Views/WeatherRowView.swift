@@ -7,6 +7,9 @@
 
 import SwiftUI
 struct WeatherRow: View {
+    //Add new
+    @State var isActive = false
+    
     // Search
     @State var searchResults: [ResponseBody] = []
     @State var searchQuery: String = ""
@@ -21,7 +24,8 @@ struct WeatherRow: View {
             NavigationStack {
                 
                 List {
-                    if searchResults.isEmpty {
+                    
+                    if searchResults.isEmpty && searchQuery == "" {
                         ForEach(weatherManager.defaultCitiesArray){ weather in
                             arrayView(weather: weather)
                         }
@@ -31,14 +35,23 @@ struct WeatherRow: View {
                         }
                     }
                 }
-                .navigationTitle("Choose your City")
+                .navigationTitle("Choose your city")
                 .toolbar {
+                    
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("+"){
+                                isActive = true
+                        }
+                        .padding()
+                        .font(.title)
+                    }
+                    
+                    
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Dismiss"){
                             self.isPresented = false
                         }
                         .padding()
-                        .foregroundStyle(.black)
                     }
                 }
             }
@@ -50,6 +63,17 @@ struct WeatherRow: View {
             .textInputAutocapitalization(.words)
             .onChange(of: searchQuery) {
                 self.fetchSearchResults(for: searchQuery)
+            }
+            .overlay {
+                if searchResults.isEmpty && searchQuery != "" {
+                    ContentUnavailableView.search(text: searchQuery)
+                }
+            }
+            .overlay {
+                if isActive == true {
+                    AddCityView(isActive: $isActive)
+                        .environment(weatherManager)
+                }
             }
             
     }

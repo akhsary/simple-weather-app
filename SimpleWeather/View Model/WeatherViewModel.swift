@@ -9,6 +9,7 @@ import Foundation
 import CoreLocation
 
 @Observable final class WeatherViewModel {
+    // MARK: -Propeerties
     var locationManager = LocationDataManager()
     var weatherManager = WeatherManager()
     
@@ -33,7 +34,9 @@ import CoreLocation
 //            print("DEBUG: an error occured \(String(describing: error))")
 //        }
     
-
+    var userCityError: String?
+    
+    // MARK: -Load data for city by long lat
     func loadUserWeatherFor(location: CLLocationCoordinate2D) async throws {
             let result = try await weatherManager.loadWeatherFor(latitude: location.latitude, longitude: location.longitude)
             
@@ -44,7 +47,7 @@ import CoreLocation
                 self.error = failure.localizedDescription
             }
     }
-    
+    // MARK: -Load data for array
     func loadDefaultArray() async throws {
         
         self.defaultCoordArray.enumerated().forEach { index, location in
@@ -62,7 +65,29 @@ import CoreLocation
             }
         }
     }
-     
+    // MARK: -Load data for city by name
+    func loadWeatherForCityName(_ name: String) async throws {
+        let result = try await weatherManager.loadWeatherForCityName(name)
+        switch result {
+        case .success(let success):
+            var temp = true // same as .contains
+            for item in defaultCitiesArray {
+                if item.name == success.name {
+                    temp = false
+                    self.userCityError = "City already in list"
+                    continue
+                }
+            }
+            if temp == true {
+                defaultCitiesArray.append(success)
+            }
+        case .failure(let failure):
+            self.userCityError = failure.localizedDescription
+        }
+    }
+    
+    
+    // MARK: -Lifecycle
     init() {
         defaultCitiesArray = Array(repeating: previewWeather, count: defaultCoordArray.count)
         locationManager.checkIfLocationIsEnabled()

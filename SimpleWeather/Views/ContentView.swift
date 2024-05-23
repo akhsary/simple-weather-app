@@ -17,7 +17,6 @@ struct ContentView: View {
             VStack {
                 if weatherManager.locationManager.isLoading {
                     LoadingView()
-                        .environment(weatherManager)
                 } else  {
                     if weatherManager.userWeather != nil {
                         MainWeatherView()
