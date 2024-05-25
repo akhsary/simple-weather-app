@@ -36,7 +36,6 @@ struct MainWeatherView: View {
                         }
                         .sheet(isPresented: $isPresented) {
                             WeatherRow(isPresented: $isPresented)
-                                .environment(weatherManager)
                                 .preferredColorScheme(.light)
                         }
                         

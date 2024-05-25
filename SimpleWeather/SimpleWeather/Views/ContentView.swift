@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Environment(WeatherViewModel.self) var weatherManager
+    @State var weatherManager: WeatherViewModel
     
     var body: some View {
         if let error = weatherManager.error {
@@ -30,6 +30,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
-        .environment(WeatherViewModel())
+    ContentView(weatherManager: previewWeatherViewModel)
 }

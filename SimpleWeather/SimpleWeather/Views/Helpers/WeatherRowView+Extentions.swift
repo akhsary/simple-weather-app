@@ -6,15 +6,15 @@
 //
 import SwiftUI
 
-extension WeatherRow {
-    internal func fetchSearchResults(for query: String) {
+ extension WeatherRow {
+     func fetchSearchResults(for query: String) {
         searchResults = weatherManager.defaultCitiesArray.filter { city in
             city.name
                 .capitalized(with: nil)
                 .contains(searchQuery)
         }
     }
-    internal struct TextFieldModifier: ViewModifier {
+    struct TextFieldModifier: ViewModifier {
         func body(content: Content) -> some View {
             content
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(.black))
@@ -24,7 +24,7 @@ extension WeatherRow {
         }
     }
     
-    internal func arrayView(weather: ResponseBody) -> some View {
+    func arrayView(weather: ResponseBody) -> some View {
         Button {
             weatherManager.userWeather = weather
             isPresented = false
