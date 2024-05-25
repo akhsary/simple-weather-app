@@ -32,7 +32,7 @@ struct AddCityView: View {
                                     isActive = false
                                 }
                             } catch {
-                                weatherManager.error = error.localizedDescription
+                                weatherManager.userCityError = error.localizedDescription
                             }
                         }
                     }
@@ -41,20 +41,22 @@ struct AddCityView: View {
                         self.focused = true
                     }
                     .alert("Fail", isPresented: $isPresented) {
-                        Button("Try again", role: .cancel){}
+                        Button("Try again", role: .cancel){
+                            self.focused = true
+                            weatherManager.userCityError = nil
+                        }
                         Button("Dismiss") {
+                            weatherManager.userCityError = nil
                             isPresented = false
                             isActive = false
                         }
                     } message: {
-                        Text("Added city failed. Try again. Reason: \(String(describing: weatherManager.userCityError))")
-                            .onAppear(perform: {
-                                weatherManager.userCityError = nil
-                            })
+                        Text("Added city failed. Try again")
                     }
                     .padding()
                     
                     Button("Cancel"){
+                        weatherManager.userCityError = nil
                         isActive = false
                     }
                 }
