@@ -1,100 +1,131 @@
-//
-//  WeatherModelView.swift
-//  SimpleWeather
-//
-//  Created by Юрий Чекан on 17.05.2024.
-//
-
 import Foundation
 import CoreLocation
 
 @Observable final class WeatherViewModel {
-    // MARK: -Propeerties
+    
+    // MARK: - Properties
     var locationManager = LocationDataManager()
     var weatherManager = WeatherManager()
     
     var userWeather: ResponseBody?
     var defaultCitiesArray = [ResponseBody]()
-    var defaultCoordArray: [CLLocationCoordinate2D] {
-        [
-            CLLocationCoordinate2D(latitude: 55.7558, longitude: 37.6172),
-            CLLocationCoordinate2D(latitude: 59.9375, longitude: 30.3086),
-            CLLocationCoordinate2D(latitude: 55.0500, longitude: 82.9500),
-            CLLocationCoordinate2D(latitude: 56.8356, longitude: 60.6128),
-            CLLocationCoordinate2D(latitude: 55.7964, longitude: 49.1089),
-            CLLocationCoordinate2D(latitude: 56.3269, longitude: 44.0075),
-            CLLocationCoordinate2D(latitude: 45.0368, longitude: 35.3779),
-            CLLocationCoordinate2D(latitude: 45.71168, longitude: 34.39274),
-            CLLocationCoordinate2D(latitude: 44.9572, longitude: 34.1108)
-        ]
+    
+    var defaultNamesArray: [String] {
+        didSet {
+            UserDefaults.standard.set(defaultNamesArray, forKey: "defaultNamesArray")
+        }
     }
     
-    var error: String?
-//        didSet {
-//            print("DEBUG: an error occured \(String(describing: error))")
-//        }
-    
+    var error: String? {
+        didSet {
+            print("DEBUG: an error occurred \(String(describing: error))")
+        }
+    }
     var userCityError: String?
     
-    // MARK: -Load data for city by long lat
+    // MARK: - Load data for city by long lat
     func loadUserWeatherFor(location: CLLocationCoordinate2D) async throws {
-            let result = try await weatherManager.loadWeatherFor(latitude: location.latitude, longitude: location.longitude)
-            
-            switch result {
-            case .success(let success):
-                self.userWeather = success
-            case .failure(let failure):
-                self.error = failure.localizedDescription
-            }
-    }
-    // MARK: -Load data for array
-    func loadDefaultArray() async throws {
+        let result = try await weatherManager.loadWeatherFor(latitude: location.latitude, longitude: location.longitude)
         
-        self.defaultCoordArray.enumerated().forEach { index, location in
-            DispatchQueue.main.asyncAndWait {
-                Task {
-                    let result = try await weatherManager.loadWeatherFor(latitude: location.latitude, longitude: location.longitude)
-                    
-                    switch result {
-                    case .success(let success):
-                        self.defaultCitiesArray[index] = success
-                    case .failure(let failure):
-                        self.error = failure.localizedDescription
+        switch result {
+        case .success(let success):
+            self.userWeather = success
+        case .failure(let failure):
+            self.error = failure.localizedDescription
+        }
+    }
+    
+    // MARK: - Load data for array
+    func loadDefaultArray() async {
+        await withTaskGroup(of: Void.self) { group in
+            for (index, name) in defaultNamesArray.enumerated() {
+                group.addTask {
+                    do {
+                        let result = try await self.weatherManager.loadWeatherForCityName(name)
+                        switch result {
+                        case .success(let success):
+                            self.defaultCitiesArray[index] = success
+                        case .failure(let failure):
+                            self.error = failure.localizedDescription
+                        }
+                    } catch {
+                        self.error = error.localizedDescription
                     }
                 }
             }
         }
     }
-    // MARK: -Load data for city by name
-    func loadWeatherForCityName(_ name: String) async throws {
-        let result = try await weatherManager.loadWeatherForCityName(name)
-        switch result {
-        case .success(let success):
-            var temp = true // same as .contains
-            for item in defaultCitiesArray {
-                if item.name == success.name {
-                    temp = false
+    
+    // MARK: - Load data for city by name
+    func loadWeatherForCityName(_ name: String) async {
+        do {
+            let result = try await weatherManager.loadWeatherForCityName(name)
+            switch result {
+            case .success(let success):
+                if !defaultCitiesArray.contains(where: { $0.name == success.name }) {
+                    defaultCitiesArray.append(success)
+                    defaultNamesArray.append(name) // Add city name to the list and cache it
+                } else {
                     self.userCityError = "City already in list"
-                    continue
                 }
+            case .failure(let failure):
+                self.userCityError = failure.localizedDescription
             }
-            if temp == true {
-                defaultCitiesArray.append(success)
-            }
-        case .failure(let failure):
-            self.userCityError = failure.localizedDescription
+        } catch {
+            self.userCityError = error.localizedDescription
         }
     }
     
+    // MARK: - Add a new city
+    func addCity(_ name: String) async {
+        if defaultNamesArray.contains(name) {
+            self.userCityError = "City already in list"
+            return
+        }
+        
+        do {
+            let result = try await weatherManager.loadWeatherForCityName(name)
+            switch result {
+            case .success(let success):
+                defaultCitiesArray.append(success)
+                defaultNamesArray.append(name) // Add city name to the list and cache it
+            case .failure(let failure):
+                self.userCityError = failure.localizedDescription
+            }
+        } catch {
+            self.userCityError = error.localizedDescription
+        }
+    }
     
-    // MARK: -Lifecycle
+    // MARK: - Lifecycle
     init() {
-        defaultCitiesArray = Array(repeating: previewWeather, count: defaultCoordArray.count)
+        if let cachedNames = UserDefaults.standard.array(forKey: "defaultNamesArray") as? [String] {
+            self.defaultNamesArray = cachedNames
+        } else {
+            self.defaultNamesArray = [
+                "Moscow",
+                "Krasnodar",
+                "Ufa",
+                "Saint Petersburg",
+                "Novosibirsk",
+                "Chelyabinsk"
+            ]
+        }
+        
+        defaultCitiesArray = Array(repeating: previewWeather, count: defaultNamesArray.count)
         locationManager.checkIfLocationIsEnabled()
-        if locationManager.location != nil {
+        if let location = locationManager.location {
             Task {
-                try await loadUserWeatherFor(location: locationManager.location!)
-                try await loadDefaultArray()
+                do {
+                    try await loadUserWeatherFor(location: location)
+                } catch {
+                    self.error = error.localizedDescription
+                }
+                await loadDefaultArray()
+            }
+        } else {
+            Task {
+                await loadDefaultArray()
             }
         }
     }

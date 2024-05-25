@@ -1,14 +1,7 @@
-//
-//  AddCityView.swift
-//  SimpleWeather
-//
-//  Created by Юрий Чекан on 23.05.2024.
-//
-
 import SwiftUI
 
 struct AddCityView: View {
-    @Environment (WeatherViewModel.self) var weatherManager
+    @Environment(WeatherViewModel.self) var weatherManager
     
     @Binding var isActive: Bool
     
@@ -17,32 +10,21 @@ struct AddCityView: View {
     @State private var isPresented = false
     
     var body: some View {
-            List {
-                HStack {
-                    TextField(text: $name) {
-                        Text("Enter the name of the city...")
-                    }
+        List {
+            HStack {
+                TextField("Enter the name of the city...", text: $name)
                     .onSubmit {
                         Task {
-                            do {
-                                try await weatherManager.loadWeatherForCityName(name)
-                                if weatherManager.userCityError != nil {
-                                    isPresented = true
-                                } else {
-                                    isActive = false
-                                }
-                            } catch {
-                                weatherManager.userCityError = error.localizedDescription
-                            }
+                            await addCity()
                         }
                     }
-                    .focused(self.$focused)
+                    .focused($focused)
                     .onAppear {
-                        self.focused = true
+                        focused = true
                     }
-                    .alert("Fail", isPresented: $isPresented) {
-                        Button("Try again", role: .cancel){
-                            self.focused = true
+                    .alert("Error", isPresented: $isPresented) {
+                        Button("Try again", role: .cancel) {
+                            focused = true
                             weatherManager.userCityError = nil
                         }
                         Button("Dismiss") {
@@ -51,17 +33,25 @@ struct AddCityView: View {
                             isActive = false
                         }
                     } message: {
-                        Text("Added city failed. Try again")
+                        Text(weatherManager.userCityError ?? "Unknown error")
                     }
                     .padding()
-                    
-                    Button("Cancel"){
-                        weatherManager.userCityError = nil
-                        isActive = false
-                    }
+                
+                Button("Cancel") {
+                    weatherManager.userCityError = nil
+                    isActive = false
                 }
             }
-
+        }
+    }
+    
+    private func addCity() async {
+        await weatherManager.addCity(name)
+        if weatherManager.userCityError != nil {
+            isPresented = true
+        } else {
+            isActive = false
+        }
     }
 }
 

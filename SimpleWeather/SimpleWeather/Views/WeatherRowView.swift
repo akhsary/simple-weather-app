@@ -24,14 +24,16 @@ struct WeatherRow: View {
             NavigationStack {
                 
                 List {
-                    
                     if searchResults.isEmpty && searchQuery == "" {
-                        ForEach(weatherManager.defaultCitiesArray){ weather in
-                            arrayView(weather: weather)
+                        ForEach(weatherManager.defaultCitiesArray){ item in
+                            arrayView(weather: item)
+                        }.onDelete { index in
+                            delete(at: index)
                         }
-                    } else {
-                        ForEach(searchResults){ weather in
-                            arrayView(weather: weather)
+                    }
+                    else {
+                        ForEach(searchResults){ item in
+                            arrayView(weather: item)
                         }
                     }
                 }
@@ -77,6 +79,13 @@ struct WeatherRow: View {
             }
             
     }
+}
+
+extension WeatherRow {
+    func delete(at indexSet: IndexSet) {
+                weatherManager.defaultCitiesArray.remove(atOffsets: indexSet)
+                weatherManager.defaultNamesArray.remove(atOffsets: indexSet)
+        }
 }
 
 #Preview {
