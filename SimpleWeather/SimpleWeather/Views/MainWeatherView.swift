@@ -11,10 +11,14 @@ struct MainWeatherView: View {
     @State var isPresented = false
     @State private var counter = true
     
-    @Environment(WeatherViewModel.self) var weatherManager
+    @Environment(WeatherViewModel.self) private var weatherManager
+    
+    private var userWeather: ResponseBody? {
+        return weatherManager.userWeather
+    }
     
     var body: some View {
-        if let weather = weatherManager.userWeather {
+        if let weather = userWeather {
             ZStack(alignment: .leading) {
                 VStack {
                     VStack(alignment: .leading, spacing: 5) {

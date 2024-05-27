@@ -12,7 +12,8 @@ struct SimpleWeatherApp: App {
     @State private var weatherViewModel = WeatherViewModel()
     var body: some Scene {
         WindowGroup {
-            ContentView(weatherManager: weatherViewModel)
+            ContentView()
+                .environment(weatherViewModel)
         }
     }
 }

@@ -13,7 +13,7 @@ struct WeatherRow: View {
     // Search
     @State var searchResults: [ResponseBody] = []
     @State var searchQuery: String = ""
-    var isSearching: Bool {
+    private var isSearching: Bool {
         return !searchQuery.isEmpty
     }
     //-------------------------
