@@ -45,7 +45,7 @@ import Observation
                         let result = try await self.weatherManager.loadWeatherForCityName(name)
                         switch result {
                         case .success(let success):
-                            self.defaultCitiesArray[index] = success
+                            self.defaultCitiesArray = self.defaultCitiesArray + [success]
                         case .failure(let failure):
                             self.error = failure.localizedDescription
                         }
@@ -113,7 +113,6 @@ import Observation
             ]
         }
         
-        defaultCitiesArray = Array(repeating: previewWeather, count: defaultNamesArray.count)
         locationManager.checkIfLocationIsEnabled()
         if let location = locationManager.location {
             Task {
